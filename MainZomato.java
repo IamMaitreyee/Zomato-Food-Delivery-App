@@ -11,6 +11,12 @@ import java.util.Set;
 public class MainZomato {
 
 	public static void main(String[] args) {
+
+		// Static block
+		{
+			System.out.println("@Zomato Food Delivery App");
+		}
+
 		// List of Food Item
 		List<FoodItem> fooditems = new ArrayList<>();
 
@@ -25,7 +31,7 @@ public class MainZomato {
 
 		// customer
 		Map<Integer, Customer> customer = new HashMap<>();
-		
+
 		customer.put(1, new Customer(1, "Sapna Patil", "9005350001", "Kothrud, Pune"));
 		customer.put(2, new Customer(2, "Rahul Sharma", "9075744202", "Baner, Pune"));
 		customer.put(3, new Customer(3, "Priya Deshmukh", "9090869003", "Wakad, Pune"));
@@ -33,21 +39,25 @@ public class MainZomato {
 		customer.put(5, new Customer(5, "Sneha Joshi", "946436545", "Viman Nagar, Pune"));
 		customer.put(6, new Customer(6, "Rohan Patil", "9985343406", "Hadapsar, Pune"));
 		customer.put(7, new Customer(7, "Pooja Shah", "9057442007", "Pimple Saudagar, Pune"));
-		
-		//food Categories
+
+		// food Categories
 		Set<String> categories = new HashSet<>();
-		
-		//Orders
+
+		// Orders
 		List<Order> orders = new ArrayList<>();
 		int orderId = 1001;
-		
-		//menu
+
+		// menu
 		Map<Integer, FoodItem> menu = new HashMap<>();
 
-
-		{
-			System.out.println("@Zomato Food Delivery App");
+		for (FoodItem fi : fooditems) {
+			menu.put(fi.getFoodId(), fi);
 		}
+
+		// order Items
+		List<FoodItem> orderedItems = new ArrayList<>();
+
+		// Food Delievery
 		Scanner sc = new Scanner(System.in);
 		int choice;
 
@@ -134,220 +144,211 @@ public class MainZomato {
 				System.out.println("Enter Customer Id: ");
 				int id = sc.nextInt();
 				sc.nextLine();
-				
+
 				System.out.println("Enter Customer name: ");
 				String name = sc.nextLine();
-				
+
 				System.out.println("Enter Mobile number: ");
 				String phone = sc.nextLine();
-				
+
 				System.out.println("Enter Address: ");
 				String add = sc.nextLine();
-				
+
 				Customer c = new Customer(id, name, phone, add);
 				customer.put(id, c);
-				
+
 				System.out.println("Customer Registration Successfull!");
 				System.out.println(customer);
 
-				
 				break;
 
 			case 6:
 				// Display all customers
-			    System.out.println("\nAll Registered Customers:");
+				System.out.println("\nAll Registered Customers:");
 
-			    for (Customer cust : customer.values()) {
-			        System.out.println(cust);
-			    }
+				for (Customer cust : customer.values()) {
+					System.out.println(cust);
+				}
 
-			    break;
+				break;
 			case 7:
 				// Search customer
 				System.out.println("\nSearch Customer: ");
 				System.out.println("Enter customer id: ");
 				int cid = sc.nextInt();
 				boolean cfound = false;
-				
-				for(Customer ct: customer.values()) {
-					if(ct.getCustomerId() == cid) {
+
+				for (Customer ct : customer.values()) {
+					if (ct.getCustomerId() == cid) {
 						cfound = true;
 						System.out.println(ct);
 					}
 				}
-				if(!cfound)
+				if (!cfound)
 					System.out.println("Customer not found");
 				break;
 
 			case 8:
-				// Place order
-			    System.out.println("\n========== PLACE ORDER ==========");
+				System.out.println("\n========== PLACE ORDER ==========");
+				System.out.print("Enter Customer ID: ");
+				int custId = sc.nextInt();
 
-			    System.out.print("Enter Customer ID: ");
-			    int custId = sc.nextInt();
+				Customer selectedCustomer = customer.get(custId);
 
-			    Customer selectedCustomer = customer.get(custId);
+				if (selectedCustomer == null) {
+					System.out.println("Customer not found! Please register first.");
+					break;
+				}
 
-			    if (selectedCustomer == null) {
-			        System.out.println("Customer not found! Please register first.");
-			        break;
-			    }
+				char ch = 'Y';
 
-			    List<FoodItem> orderedItems = new ArrayList<>();
-			    char ch = 'Y';
+				while (ch == 'Y' || ch == 'y') {
 
-			    while (ch == 'Y' || ch == 'y') {
+					System.out.println("\n========== FOOD MENU ==========");
 
-			        System.out.println("\nFood Menu:");
+					for (FoodItem fi : fooditems) {
+						System.out.println(fi.getFoodId() + " ->> " + fi.getFoodName() + " - Rs. " + fi.getPrice());
+					}
 
-			        for (FoodItem fi : fooditems) {
-			            System.out.println(fi);
-			        }
+					FoodItem selectedFood = null;
 
-			        System.out.print("\nEnter Food ID to order: ");
-			        int foodId = sc.nextInt();
+					while (selectedFood == null) {
+						System.out.print("\nEnter Food ID to order: ");
+						int foodId = sc.nextInt();
 
-			        FoodItem selectedFood = menu.get(foodId);
+						selectedFood = menu.get(foodId);
 
-			        if (selectedFood != null) {
-			            orderedItems.add(selectedFood);
-			            System.out.println(selectedFood.getFoodName() + " added to order!");
-			        } else {
-			            System.out.println("Invalid Food ID!");
-			        }
+						if (selectedFood == null) {
+							System.out.println("Food item not found! Please try again.");
+						}
+					}
 
-			        System.out.print("\nDo you want to add more food items? (Y/N): ");
-			        ch = sc.next().charAt(0);
-			    }
+					orderedItems.add(selectedFood);
+					System.out.println(selectedFood.getFoodName() + " added to order!");
 
-			    if (orderedItems.isEmpty()) {
-			        System.out.println("No food items selected. Order cancelled.");
-			        break;
-			    }
+					System.out.print("\nDo you want to add more food items? (Y/N): ");
+					ch = sc.next().charAt(0);
+				}
 
-			    double totalAmount = 0;
+				if (orderedItems.isEmpty()) {
+					System.out.println("No food items selected. Order cancelled.");
+					break;
+				}
 
-			    for (FoodItem fi : orderedItems) {
-			        totalAmount = totalAmount + fi.getPrice();
-			    }
+				double totalAmount = 0;
 
-			    Order order = new Order(
-			        orderId,
-			        selectedCustomer,
-			        orderedItems,
-			        totalAmount,
-			        "PLACED"
-			    );
+				for (FoodItem fi : orderedItems) {
+					totalAmount += fi.getPrice();
+				}
 
-			    orders.add(order);
+				Order order = new Order(orderId, selectedCustomer, orderedItems, totalAmount, "PLACED");
 
-			    System.out.println("\n========== ORDER BILL ==========");
-			    System.out.println("Order ID: " + orderId);
-			    System.out.println("Customer ID: " + selectedCustomer.getCustomerId());
-			    System.out.println("Customer Name: " + selectedCustomer.getCustomerName());
+				orders.add(order);
 
-			    System.out.println("\nOrdered Items:");
+				System.out.println("\n========== ORDER BILL ==========");
+				System.out.println("Order ID: " + orderId);
+				System.out.println("Customer ID: " + selectedCustomer.getCustomerId());
+				System.out.println("Customer Name: " + selectedCustomer.getCustomerName());
 
-			    for (FoodItem fi : orderedItems) {
-			        System.out.println(
-			            fi.getFoodName() + " - Rs. " + fi.getPrice()
-			        );
-			    }
+				System.out.println("\nOrdered Items:");
 
-			    System.out.println("--------------------------------");
-			    System.out.println("Grand Total: Rs. " + totalAmount);
-			    System.out.println("Order Status: PLACED");
-			    System.out.println("Order placed successfully!");
+				for (FoodItem fi : orderedItems) {
+					System.out.println(fi.getFoodName() + " - Rs. " + fi.getPrice());
+				}
 
-			    orderId++;
+				System.out.println("--------------------------------");
+				System.out.println("Grand Total: Rs. " + totalAmount);
+				System.out.println("Order Status: PLACED");
+				System.out.println("Order placed successfully!");
 
-			    break;
+				orderId++;
+				break;
 			case 9:
-			    // Display all orders
-			    System.out.println("\n========== ALL ORDERS ==========");
+				// Display all orders
+				System.out.println("\n========== ALL ORDERS ==========");
 
-			    if (orders.isEmpty()) {
-			        System.out.println("No orders placed yet.");
-			    } else {
-			        for (Order o : orders) {
-			            System.out.println(o);
-			        }
-			    }
+				if (orders.isEmpty()) {
+					System.out.println("No orders placed yet.");
+				} else {
+					for (Order o : orders) {
+						System.out.println(o);
+					}
+				}
 
-			    break;
-			    
+				break;
+
 			case 10:
-			    // Display orders by customer ID
-			    System.out.println("\n========== ORDERS BY CUSTOMER ID ==========");
+				// Display orders by customer ID
+				System.out.println("\n========== ORDERS BY CUSTOMER ID ==========");
 
-			    System.out.print("Enter Customer ID: ");
-			    int searchId = sc.nextInt();
+				System.out.print("Enter Customer ID: ");
+				int searchId = sc.nextInt();
 
-			    boolean orderFound = false;
+				boolean orderFound = false;
 
-			    for (Order o : orders) {
-			        if (o.getCustomerName().getCustomerId() == searchId) {
-			            System.out.println(o);
-			            orderFound = true;
-			        }
-			    }
+				for (Order o : orders) {
+					if (o.getCustomerName().getCustomerId() == searchId) {
+						System.out.println(o);
+						orderFound = true;
+					}
+				}
 
-			    if (!orderFound) {
-			        System.out.println("No orders found for this customer!");
-			    }
+				if (!orderFound) {
+					System.out.println("No orders found for this customer!");
+				}
 
-			    break;
+				break;
 			case 11:
-			    // Update Order Status
-			    System.out.println("\n========== UPDATE ORDER STATUS ==========");
+				// Update Order Status
+				System.out.println("\n========== UPDATE ORDER STATUS ==========");
 
-			    System.out.print("Enter Order ID: ");
-			    int searchOrderId = sc.nextInt();
+				System.out.print("Enter Order ID: ");
+				int searchOrderId = sc.nextInt();
 
-			    boolean orderFound1 = false;
+				boolean orderFound1 = false;
 
-			    for (Order o : orders) {
-			        if (o.getOrderId() == searchOrderId) {
-			            orderFound1 = true;
+				for (Order o : orders) {
+					if (o.getOrderId() == searchOrderId) {
+						orderFound1 = true;
 
-			            System.out.println("Current Status: " + o.getStatus());
+						System.out.println("Current Status: " + o.getStatus());
 
-			            System.out.println("\nSelect New Status:");
-			            System.out.println("1. PREPARING");
-			            System.out.println("2. OUT_FOR_DELIVERY");
-			            System.out.println("3. DELIVERED");
-			            System.out.print("Enter your choice: ");
+						System.out.println("\nSelect New Status:");
+						System.out.println("1. PREPARING");
+						System.out.println("2. OUT_FOR_DELIVERY");
+						System.out.println("3. DELIVERED");
+						System.out.print("Enter your choice: ");
 
-			            int statusChoice = sc.nextInt();
+						int statusChoice = sc.nextInt();
 
-			            switch (statusChoice) {
-			                case 1:
-			                    o.setStatus("PREPARING");
-			                    break;
+						switch (statusChoice) {
+						case 1:
+							o.setStatus("PREPARING");
+							break;
 
-			                case 2:
-			                    o.setStatus("OUT_FOR_DELIVERY");
-			                    break;
+						case 2:
+							o.setStatus("OUT_FOR_DELIVERY");
+							break;
 
-			                case 3:
-			                    o.setStatus("DELIVERED");
-			                    break;
+						case 3:
+							o.setStatus("DELIVERED");
+							break;
 
-			                default:
-			                    System.out.println("Invalid status choice!");
-			                    break;
-			            }
+						default:
+							System.out.println("Invalid status choice!");
+							break;
+						}
 
-			            System.out.println("Updated Order Status: " + o.getStatus());
-			            break;
-			        }
-			    }
+						System.out.println("Updated Order Status: " + o.getStatus());
+						break;
+					}
+				}
 
-			    if (!orderFound1) {
-			        System.out.println("Order not found!");
-			    }
+				if (!orderFound1) {
+					System.out.println("Order not found!");
+				}
 
-			    break;
+				break;
 
 			case 12:
 				// Display unique categories
@@ -368,37 +369,35 @@ public class MainZomato {
 				double max = Integer.MIN_VALUE;
 				double secmax = Integer.MIN_VALUE;
 				double thirdmax = Integer.MIN_VALUE;
-				
+
 				FoodItem maxfood = null;
 				FoodItem secfood = null;
-				FoodItem thirdfood= null;
-				
-				for(FoodItem fi: fooditems) {
-					if(fi.getPrice()>max) {
-						thirdmax = secmax;
-			            thirdfood = secfood;
-			            
-						secmax = max;
-						secfood = maxfood;
-						
-						max = fi.getPrice();
-						maxfood = fi;
-					}
-					else if(max != secmax && fi.getPrice()> secmax) {
+				FoodItem thirdfood = null;
+
+				for (FoodItem fi : fooditems) {
+					if (fi.getPrice() > max) {
 						thirdmax = secmax;
 						thirdfood = secfood;
-						
+
+						secmax = max;
+						secfood = maxfood;
+
+						max = fi.getPrice();
+						maxfood = fi;
+					} else if (max != secmax && fi.getPrice() > secmax) {
+						thirdmax = secmax;
+						thirdfood = secfood;
+
 						secmax = fi.getPrice();
 						secfood = fi;
-					}
-					else if(secmax != thirdmax && fi.getPrice()> thirdmax) {
+					} else if (secmax != thirdmax && fi.getPrice() > thirdmax) {
 						thirdmax = fi.getPrice();
 						thirdfood = fi;
 					}
 				}
-				System.out.println("1 -->"+maxfood);
-				System.out.println("2 -->"+secfood);
-				System.out.println("3 -->"+thirdfood);
+				System.out.println("1 -->" + maxfood);
+				System.out.println("2 -->" + secfood);
+				System.out.println("3 -->" + thirdfood);
 				break;
 
 			case 14:
@@ -410,7 +409,6 @@ public class MainZomato {
 			}
 
 		} while (choice != 14);
-
 
 	}
 }
